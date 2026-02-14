@@ -10,13 +10,14 @@ import main.GameWindow;
 public class ScoreSubPanel {
     private final int posX = 0;
     private final int posY = GameWindow.HEIGHT - 50;
+    private static final Font SCORE_FONT = new Arial(Font.BOLD, 24);
 
     public void draw(Graphics2D g2d) {
         g2d.setColor(Color.WHITE);
         g2d.fillRect(posX, posY, GameWindow.WIDTH, 50);
         g2d.fill3DRect(posX, posY, GameWindow.WIDTH, 50, true);
 
-        g2d.setFont(new Arial(Font.BOLD, 24));
+        g2d.setFont(SCORE_FONT);
 
         g2d.setColor(Color.BLACK);
         g2d.drawString("Time: " + GameWindow.clock.getTime(), posX + 10, posY + 35);

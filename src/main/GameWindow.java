@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.JPanel;
@@ -86,21 +87,28 @@ public class GameWindow extends JPanel implements Runnable {
 
     public static void checkInput() {
         if(gameState != GameState.PLAYING) return;
-        if(input.getInput().isEmpty()) return;
+        String typedInput = input.getInput();
+        if(typedInput.isEmpty()) return;
 
         // cheat
-        if(input.getInput().equalsIgnoreCase("bang")) {
+        if(typedInput.equalsIgnoreCase("bang")) {
             score.addPoint(Word.NORMAL);
-            words.remove(0);
+            if(!words.isEmpty()) {
+                words.remove(0);
+            }
             input.reset();
             return;
         }
 
         for (int i = 0; i < words.size(); i++) {
             Word word = words.get(i);
-            if(word.getWord().equalsIgnoreCase(input.getInput())) {
-                words.remove(i);
-                score.addPoint(word.type);
+            if(word.isRemoving()) {
+                continue;
+            }
+
+            if(word.getWord().equalsIgnoreCase(typedInput)) {
+                word.startRemoveAnimation();
+                score.addPoint(word.getType());
                 return;
             }
         }
@@ -108,9 +116,27 @@ public class GameWindow extends JPanel implements Runnable {
     }
 
     public void update() {
+        if (gameState != GameState.PLAYING) {
+            return;
+        }
+
         dictionary.generateWord();
 
-        for(Word word: words) word.update();
+        Iterator<Word> iterator = words.iterator();
+        while (iterator.hasNext()) {
+            Word word = iterator.next();
+            word.update();
+
+            if (word.isRemoveAnimationComplete()) {
+                iterator.remove();
+                continue;
+            }
+
+            if (!word.isRemoving() && word.reachedLeftBoundary()) {
+                gameState = GameState.GAME_OVER;
+                return;
+            }
+        }
     }
 
     public void paintComponent(Graphics g) {
