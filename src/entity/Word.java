@@ -14,6 +14,7 @@ public class Word {
     public static final int NORMAL = 1;
     public static final int SPECIAL = 3;
     private static final int REMOVE_ANIMATION_FRAMES = 14;
+    private static final Color SPECIAL_WORD_COLOR = new Color(255, 140, 0);
     
     private final String text;
     private int posX;
@@ -102,7 +103,7 @@ public class Word {
         }
 
         if(type == SPECIAL) {
-            g2d.setColor(Color.BLUE);
+            g2d.setColor(SPECIAL_WORD_COLOR);
         } else {
             g2d.setColor(Color.BLACK);
         }

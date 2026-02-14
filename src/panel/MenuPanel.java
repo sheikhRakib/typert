@@ -20,6 +20,17 @@ public class MenuPanel {
     private static final Font FONT_LARGE = new Arial(Font.BOLD, 24);
     private static final Font FONT_XL = new Arial(Font.BOLD, 35);
     private static final Font FONT_XXL = new Arial(Font.BOLD, 58);
+    private static final String[] INSTRUCTION_LINES = {
+        "1. Type the visible words with A-Z keys.",
+        "2. Press Space or Enter to submit your input.",
+        "3. Correct normal word: +1 point.",
+        "4. Correct special word (orange): +3 points.",
+        "5. Wrong submit: no points and lower accuracy.",
+        "6. If a word reaches the left edge, game over.",
+        "7. Press Esc to pause and Enter to resume/restart.",
+        "8. Press I in menu to open this page.",
+        "9. Cheat code: type 'bang' and submit."
+    };
 
     private BufferedImage bg;
     private BufferedImage play;
@@ -84,15 +95,14 @@ public class MenuPanel {
             case INSTRUCTIONS:
                 g2d.setFont(FONT_LARGE);
                 g2d.setColor(Color.BLACK);
-                g2d.drawString("Instructions:", 280, 220);
+                g2d.drawString("How to Play", 320, 250);
                 g2d.setFont(FONT_MEDIUM);
-                g2d.drawString("1. Type the words as they appear.", 300, 240);
-                g2d.drawString("2. Press Enter/Space to submit word.", 300, 260);
-                g2d.drawString("3. Press Enter to start the game.", 300, 280);
-                g2d.drawString("4. Press I to view instructions on menu.", 300, 300);
-                g2d.drawString("5. Press Esc to pause the game.", 300, 320);
-                g2d.drawString("6. Cheatcode: bang.", 300, 340);
-                g2d.drawString("Press Enter to return to Menu...", 300, 450);
+                int y = 285;
+                for (String line : INSTRUCTION_LINES) {
+                    g2d.drawString(line, 190, y);
+                    y += 24;
+                }
+                g2d.drawString("Press Enter to return to Menu...", 270, 550);
                 break;
             default:
                 break;
