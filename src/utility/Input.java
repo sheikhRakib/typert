@@ -1,17 +1,17 @@
 package utility;
 
 public class Input {
-    private String text = "";
+    private final StringBuilder text = new StringBuilder();
 
-    public void setInput(String charecter) {
-        text += charecter.toLowerCase();
+    public void setInput(String character) {
+        text.append(character.toLowerCase());
     }
 
     public String getInput() {
-        return text;
+        return text.toString();
     }
 
     public void reset() {
-        text = "";
+        text.setLength(0);
     }
 }

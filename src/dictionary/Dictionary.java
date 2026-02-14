@@ -1,11 +1,16 @@
 package dictionary;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 import entity.Word;
 import main.GameWindow;
@@ -37,21 +42,30 @@ public class Dictionary {
     }
 
     private void loadDictionary(String filePath, List<String> words) {
-        InputStream is = getClass().getResourceAsStream(filePath);        
-        BufferedReader br = new BufferedReader(new InputStreamReader(is));
-
-        String line;
-
-        try {
+        try (InputStream is = openResourceStream(filePath);
+             BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            String line;
             while ((line = br.readLine()) != null) {
                 String[] wordArray = line.trim().split("\\s+");
                 Collections.addAll(words, wordArray);
             }
-
-            br.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private InputStream openResourceStream(String filePath) throws IOException {
+        InputStream classpathStream = getClass().getResourceAsStream(filePath);
+        if (classpathStream != null) {
+            return classpathStream;
+        }
+
+        Path fileFallback = Path.of("res", filePath.replaceFirst("^/", ""));
+        if (Files.exists(fileFallback)) {
+            return Files.newInputStream(fileFallback, StandardOpenOption.READ);
+        }
+
+        throw new IOException("Dictionary file not found: " + filePath + " or " + fileFallback);
     }
     
     public void generateWord() {
@@ -62,30 +76,27 @@ public class Dictionary {
             return;
         }
 
-        waitTime = (int) (Math.random() * (maxWaitTime - minWaitTime + 1)) + minWaitTime;
-        int weight = (int) (Math.random() * tw);
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        waitTime = random.nextInt(minWaitTime, maxWaitTime + 1);
+        int weight = random.nextInt(tw);
 
         if (weight < ew) {
             setProbabilities(ew-15, nw+10 , hw+5, sw+1);
-            String s =  easyWords.get((int) (Math.random() * easyWords.size()));
-            Word newWord = new Word(s, Word.NORMAL);
-            GameWindow.words.add(newWord);
+            GameWindow.words.add(new Word(randomWord(easyWords), Word.NORMAL));
         } else if (weight < ew + nw) {
             setProbabilities(ew+5, nw-15 , hw+10, sw+1);
-            String s = normalWords.get((int) (Math.random() * normalWords.size()));
-            Word newWord = new Word(s, Word.NORMAL);
-            GameWindow.words.add(newWord);
+            GameWindow.words.add(new Word(randomWord(normalWords), Word.NORMAL));
         } else if (weight < ew + nw + hw) {
             setProbabilities(ew+10, nw+5 , hw-15, sw+1);
-            String s = hardWords.get((int) (Math.random() * hardWords.size()));
-            Word newWord = new Word(s, Word.NORMAL);
-            GameWindow.words.add(newWord);
+            GameWindow.words.add(new Word(randomWord(hardWords), Word.NORMAL));
         } else {
             setProbabilities(ew, nw , hw, 0);
-            String s =  specialWords.get((int) (Math.random() * specialWords.size()));
-            Word newWord = new Word(s, Word.SPECIAL);
-            GameWindow.words.add(newWord);
+            GameWindow.words.add(new Word(randomWord(specialWords), Word.SPECIAL));
         }
+    }
+
+    private String randomWord(List<String> words) {
+        return words.get(ThreadLocalRandom.current().nextInt(words.size()));
     }
     
     public void reset() {
